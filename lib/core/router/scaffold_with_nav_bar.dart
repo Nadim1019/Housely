@@ -2,9 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:housely/core/router/app_drawer.dart';
 import 'package:housely/core/router/app_routes.dart';
 
-/// Navigation scaffold providing a persistent bottom navigation bar.
+/// Navigation scaffold providing a persistent bottom bar and side drawer.
 class ScaffoldWithNavBar extends StatelessWidget {
   /// Active screen child rendered inside the shell route.
   final Widget child;
@@ -40,6 +41,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       body: child,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _calculateSelectedIndex(context),

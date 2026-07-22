@@ -7,10 +7,12 @@ import 'package:housely/core/router/app_routes.dart';
 import 'package:housely/core/router/scaffold_with_nav_bar.dart';
 import 'package:housely/features/assets/presentation/screens/assets_screen.dart';
 import 'package:housely/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:housely/features/documents/presentation/screens/documents_screen.dart';
 import 'package:housely/features/expenses/presentation/screens/expenses_screen.dart';
 import 'package:housely/features/maintenance/presentation/screens/maintenance_screen.dart';
 import 'package:housely/features/properties/presentation/screens/properties_screen.dart';
 import 'package:housely/features/rent_ledger/presentation/screens/rent_ledger_screen.dart';
+import 'package:housely/features/tenant_history/presentation/screens/tenant_history_screen.dart';
 import 'package:housely/features/tenants/presentation/screens/tenants_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -62,6 +64,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.assets,
         name: 'assets',
         builder: (context, state) => const AssetsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.documents,
+        name: 'documents',
+        builder: (context, state) => const DocumentsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.history,
+        name: 'history',
+        builder: (context, state) => const TenantHistoryScreen(),
       ),
     ],
   );
