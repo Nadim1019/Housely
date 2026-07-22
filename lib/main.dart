@@ -2,14 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:housely/app/router/app_router.dart';
 import 'package:housely/core/theme/app_theme.dart';
 import 'package:housely/core/theme/theme_provider.dart';
 
+/// Entry point of the Housely Property Management application.
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
   runApp(
     const ProviderScope(
       child: HouselyApp(),
@@ -17,7 +16,7 @@ void main() {
   );
 }
 
-/// Root widget for the Housely Property Management application.
+/// Root widget for configuring application routing, themes, and Riverpod state scoping.
 class HouselyApp extends ConsumerWidget {
   const HouselyApp({super.key});
 
