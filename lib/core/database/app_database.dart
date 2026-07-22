@@ -18,7 +18,6 @@ import 'package:housely/core/database/tables/documents_table.dart';
 part 'app_database.g.dart';
 
 /// Centralized Drift database for the Housely Property Management app.
-/// Aggregates all database tables and manages the native SQLite connection.
 @DriftDatabase(tables: [
   PropertiesTable,
   TenantsTable,
@@ -36,7 +35,6 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => 1;
 }
 
-/// Creates a lazy database connection to local SQLite file storage.
 QueryExecutor _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();

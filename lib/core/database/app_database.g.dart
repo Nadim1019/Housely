@@ -4,7 +4,7 @@ part of 'app_database.dart';
 
 // ignore_for_file: type=lint
 class $PropertiesTableTable extends PropertiesTable
-    with TableInfo<$PropertiesTableTable, PropertyUnit> {
+    with TableInfo<$PropertiesTableTable, Property> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -18,57 +18,44 @@ class $PropertiesTableTable extends PropertiesTable
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _buildingNameMeta =
-      const VerificationMeta('buildingName');
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
-  late final GeneratedColumn<String> buildingName = GeneratedColumn<String>(
-      'building_name', aliasedName, false,
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 100),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
-  static const VerificationMeta _unitNumberMeta =
-      const VerificationMeta('unitNumber');
+  static const VerificationMeta _addressMeta =
+      const VerificationMeta('address');
   @override
-  late final GeneratedColumn<String> unitNumber = GeneratedColumn<String>(
-      'unit_number', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 50),
+  late final GeneratedColumn<String> address = GeneratedColumn<String>(
+      'address', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _propertyTypeMeta =
+      const VerificationMeta('propertyType');
+  @override
+  late final GeneratedColumn<String> propertyType = GeneratedColumn<String>(
+      'property_type', aliasedName, false,
       type: DriftSqlType.string,
-      requiredDuringInsert: true);
-  static const VerificationMeta _floorLevelMeta =
-      const VerificationMeta('floorLevel');
-  @override
-  late final GeneratedColumn<int> floorLevel = GeneratedColumn<int>(
-      'floor_level', aliasedName, false,
-      type: DriftSqlType.int,
       requiredDuringInsert: false,
-      defaultValue: const Constant(1));
-  static const VerificationMeta _areaSizeMeta =
-      const VerificationMeta('areaSize');
-  @override
-  late final GeneratedColumn<String> areaSize = GeneratedColumn<String>(
-      'area_size', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+      defaultValue: const Constant('Apartment'));
   static const VerificationMeta _monthlyRentMeta =
       const VerificationMeta('monthlyRent');
   @override
   late final GeneratedColumn<double> monthlyRent = GeneratedColumn<double>(
       'monthly_rent', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  static const VerificationMeta _isOccupiedMeta =
+      const VerificationMeta('isOccupied');
   @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-      'status', aliasedName, false,
-      type: DriftSqlType.string,
+  late final GeneratedColumn<bool> isOccupied = GeneratedColumn<bool>(
+      'is_occupied', aliasedName, false,
+      type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultValue: const Constant('Vacant'));
-  static const VerificationMeta _photoPathsMeta =
-      const VerificationMeta('photoPaths');
-  @override
-  late final GeneratedColumn<String> photoPaths = GeneratedColumn<String>(
-      'photo_paths', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_occupied" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -78,55 +65,38 @@ class $PropertiesTableTable extends PropertiesTable
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
   @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        buildingName,
-        unitNumber,
-        floorLevel,
-        areaSize,
-        monthlyRent,
-        status,
-        photoPaths,
-        createdAt
-      ];
+  List<GeneratedColumn> get $columns =>
+      [id, name, address, propertyType, monthlyRent, isOccupied, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
   static const String $name = 'properties_table';
   @override
-  VerificationContext validateIntegrity(Insertable<PropertyUnit> instance,
+  VerificationContext validateIntegrity(Insertable<Property> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('building_name')) {
+    if (data.containsKey('name')) {
       context.handle(
-          _buildingNameMeta,
-          buildingName.isAcceptableOrUnknown(
-              data['building_name']!, _buildingNameMeta));
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
-      context.missing(_buildingNameMeta);
+      context.missing(_nameMeta);
     }
-    if (data.containsKey('unit_number')) {
-      context.handle(
-          _unitNumberMeta,
-          unitNumber.isAcceptableOrUnknown(
-              data['unit_number']!, _unitNumberMeta));
+    if (data.containsKey('address')) {
+      context.handle(_addressMeta,
+          address.isAcceptableOrUnknown(data['address']!, _addressMeta));
     } else if (isInserting) {
-      context.missing(_unitNumberMeta);
+      context.missing(_addressMeta);
     }
-    if (data.containsKey('floor_level')) {
+    if (data.containsKey('property_type')) {
       context.handle(
-          _floorLevelMeta,
-          floorLevel.isAcceptableOrUnknown(
-              data['floor_level']!, _floorLevelMeta));
-    }
-    if (data.containsKey('area_size')) {
-      context.handle(_areaSizeMeta,
-          areaSize.isAcceptableOrUnknown(data['area_size']!, _areaSizeMeta));
+          _propertyTypeMeta,
+          propertyType.isAcceptableOrUnknown(
+              data['property_type']!, _propertyTypeMeta));
     }
     if (data.containsKey('monthly_rent')) {
       context.handle(
@@ -136,15 +106,11 @@ class $PropertiesTableTable extends PropertiesTable
     } else if (isInserting) {
       context.missing(_monthlyRentMeta);
     }
-    if (data.containsKey('status')) {
-      context.handle(_statusMeta,
-          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
-    }
-    if (data.containsKey('photo_paths')) {
+    if (data.containsKey('is_occupied')) {
       context.handle(
-          _photoPathsMeta,
-          photoPaths.isAcceptableOrUnknown(
-              data['photo_paths']!, _photoPathsMeta));
+          _isOccupiedMeta,
+          isOccupied.isAcceptableOrUnknown(
+              data['is_occupied']!, _isOccupiedMeta));
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
@@ -156,25 +122,21 @@ class $PropertiesTableTable extends PropertiesTable
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  PropertyUnit map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Property map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return PropertyUnit(
+    return Property(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      buildingName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}building_name'])!,
-      unitNumber: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}unit_number'])!,
-      floorLevel: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}floor_level'])!,
-      areaSize: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}area_size']),
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      address: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}address'])!,
+      propertyType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}property_type'])!,
       monthlyRent: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}monthly_rent'])!,
-      status: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
-      photoPaths: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}photo_paths']),
+      isOccupied: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_occupied'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
@@ -186,58 +148,31 @@ class $PropertiesTableTable extends PropertiesTable
   }
 }
 
-class PropertyUnit extends DataClass implements Insertable<PropertyUnit> {
-  /// Unique identifier for the property unit.
+class Property extends DataClass implements Insertable<Property> {
   final int id;
-
-  /// Name of the building or property complex.
-  final String buildingName;
-
-  /// Apartment number or label (e.g., "Flat 302", "Unit A4").
-  final String unitNumber;
-
-  /// Floor level where the unit is located.
-  final int floorLevel;
-
-  /// Total square footage or area size description.
-  final String? areaSize;
-
-  /// Standard monthly rent amount for this unit.
+  final String name;
+  final String address;
+  final String propertyType;
   final double monthlyRent;
-
-  /// Current occupancy status (e.g., 'Occupied', 'Vacant').
-  final String status;
-
-  /// Local file paths for property photo gallery (comma-separated).
-  final String? photoPaths;
-
-  /// Timestamp when the property record was registered.
+  final bool isOccupied;
   final DateTime createdAt;
-  const PropertyUnit(
+  const Property(
       {required this.id,
-      required this.buildingName,
-      required this.unitNumber,
-      required this.floorLevel,
-      this.areaSize,
+      required this.name,
+      required this.address,
+      required this.propertyType,
       required this.monthlyRent,
-      required this.status,
-      this.photoPaths,
+      required this.isOccupied,
       required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['building_name'] = Variable<String>(buildingName);
-    map['unit_number'] = Variable<String>(unitNumber);
-    map['floor_level'] = Variable<int>(floorLevel);
-    if (!nullToAbsent || areaSize != null) {
-      map['area_size'] = Variable<String>(areaSize);
-    }
+    map['name'] = Variable<String>(name);
+    map['address'] = Variable<String>(address);
+    map['property_type'] = Variable<String>(propertyType);
     map['monthly_rent'] = Variable<double>(monthlyRent);
-    map['status'] = Variable<String>(status);
-    if (!nullToAbsent || photoPaths != null) {
-      map['photo_paths'] = Variable<String>(photoPaths);
-    }
+    map['is_occupied'] = Variable<bool>(isOccupied);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -245,33 +180,25 @@ class PropertyUnit extends DataClass implements Insertable<PropertyUnit> {
   PropertiesTableCompanion toCompanion(bool nullToAbsent) {
     return PropertiesTableCompanion(
       id: Value(id),
-      buildingName: Value(buildingName),
-      unitNumber: Value(unitNumber),
-      floorLevel: Value(floorLevel),
-      areaSize: areaSize == null && nullToAbsent
-          ? const Value.absent()
-          : Value(areaSize),
+      name: Value(name),
+      address: Value(address),
+      propertyType: Value(propertyType),
       monthlyRent: Value(monthlyRent),
-      status: Value(status),
-      photoPaths: photoPaths == null && nullToAbsent
-          ? const Value.absent()
-          : Value(photoPaths),
+      isOccupied: Value(isOccupied),
       createdAt: Value(createdAt),
     );
   }
 
-  factory PropertyUnit.fromJson(Map<String, dynamic> json,
+  factory Property.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return PropertyUnit(
+    return Property(
       id: serializer.fromJson<int>(json['id']),
-      buildingName: serializer.fromJson<String>(json['buildingName']),
-      unitNumber: serializer.fromJson<String>(json['unitNumber']),
-      floorLevel: serializer.fromJson<int>(json['floorLevel']),
-      areaSize: serializer.fromJson<String?>(json['areaSize']),
+      name: serializer.fromJson<String>(json['name']),
+      address: serializer.fromJson<String>(json['address']),
+      propertyType: serializer.fromJson<String>(json['propertyType']),
       monthlyRent: serializer.fromJson<double>(json['monthlyRent']),
-      status: serializer.fromJson<String>(json['status']),
-      photoPaths: serializer.fromJson<String?>(json['photoPaths']),
+      isOccupied: serializer.fromJson<bool>(json['isOccupied']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -280,169 +207,141 @@ class PropertyUnit extends DataClass implements Insertable<PropertyUnit> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'buildingName': serializer.toJson<String>(buildingName),
-      'unitNumber': serializer.toJson<String>(unitNumber),
-      'floorLevel': serializer.toJson<int>(floorLevel),
-      'areaSize': serializer.toJson<String?>(areaSize),
+      'name': serializer.toJson<String>(name),
+      'address': serializer.toJson<String>(address),
+      'propertyType': serializer.toJson<String>(propertyType),
       'monthlyRent': serializer.toJson<double>(monthlyRent),
-      'status': serializer.toJson<String>(status),
-      'photoPaths': serializer.toJson<String?>(photoPaths),
+      'isOccupied': serializer.toJson<bool>(isOccupied),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
 
-  PropertyUnit copyWith(
+  Property copyWith(
           {int? id,
-          String? buildingName,
-          String? unitNumber,
-          int? floorLevel,
-          Value<String?> areaSize = const Value.absent(),
+          String? name,
+          String? address,
+          String? propertyType,
           double? monthlyRent,
-          String? status,
-          Value<String?> photoPaths = const Value.absent(),
+          bool? isOccupied,
           DateTime? createdAt}) =>
-      PropertyUnit(
+      Property(
         id: id ?? this.id,
-        buildingName: buildingName ?? this.buildingName,
-        unitNumber: unitNumber ?? this.unitNumber,
-        floorLevel: floorLevel ?? this.floorLevel,
-        areaSize: areaSize.present ? areaSize.value : this.areaSize,
+        name: name ?? this.name,
+        address: address ?? this.address,
+        propertyType: propertyType ?? this.propertyType,
         monthlyRent: monthlyRent ?? this.monthlyRent,
-        status: status ?? this.status,
-        photoPaths: photoPaths.present ? photoPaths.value : this.photoPaths,
+        isOccupied: isOccupied ?? this.isOccupied,
         createdAt: createdAt ?? this.createdAt,
       );
-  PropertyUnit copyWithCompanion(PropertiesTableCompanion data) {
-    return PropertyUnit(
+  Property copyWithCompanion(PropertiesTableCompanion data) {
+    return Property(
       id: data.id.present ? data.id.value : this.id,
-      buildingName: data.buildingName.present
-          ? data.buildingName.value
-          : this.buildingName,
-      unitNumber:
-          data.unitNumber.present ? data.unitNumber.value : this.unitNumber,
-      floorLevel:
-          data.floorLevel.present ? data.floorLevel.value : this.floorLevel,
-      areaSize: data.areaSize.present ? data.areaSize.value : this.areaSize,
+      name: data.name.present ? data.name.value : this.name,
+      address: data.address.present ? data.address.value : this.address,
+      propertyType: data.propertyType.present
+          ? data.propertyType.value
+          : this.propertyType,
       monthlyRent:
           data.monthlyRent.present ? data.monthlyRent.value : this.monthlyRent,
-      status: data.status.present ? data.status.value : this.status,
-      photoPaths:
-          data.photoPaths.present ? data.photoPaths.value : this.photoPaths,
+      isOccupied:
+          data.isOccupied.present ? data.isOccupied.value : this.isOccupied,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('PropertyUnit(')
+    return (StringBuffer('Property(')
           ..write('id: $id, ')
-          ..write('buildingName: $buildingName, ')
-          ..write('unitNumber: $unitNumber, ')
-          ..write('floorLevel: $floorLevel, ')
-          ..write('areaSize: $areaSize, ')
+          ..write('name: $name, ')
+          ..write('address: $address, ')
+          ..write('propertyType: $propertyType, ')
           ..write('monthlyRent: $monthlyRent, ')
-          ..write('status: $status, ')
-          ..write('photoPaths: $photoPaths, ')
+          ..write('isOccupied: $isOccupied, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, buildingName, unitNumber, floorLevel,
-      areaSize, monthlyRent, status, photoPaths, createdAt);
+  int get hashCode => Object.hash(
+      id, name, address, propertyType, monthlyRent, isOccupied, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is PropertyUnit &&
+      (other is Property &&
           other.id == this.id &&
-          other.buildingName == this.buildingName &&
-          other.unitNumber == this.unitNumber &&
-          other.floorLevel == this.floorLevel &&
-          other.areaSize == this.areaSize &&
+          other.name == this.name &&
+          other.address == this.address &&
+          other.propertyType == this.propertyType &&
           other.monthlyRent == this.monthlyRent &&
-          other.status == this.status &&
-          other.photoPaths == this.photoPaths &&
+          other.isOccupied == this.isOccupied &&
           other.createdAt == this.createdAt);
 }
 
-class PropertiesTableCompanion extends UpdateCompanion<PropertyUnit> {
+class PropertiesTableCompanion extends UpdateCompanion<Property> {
   final Value<int> id;
-  final Value<String> buildingName;
-  final Value<String> unitNumber;
-  final Value<int> floorLevel;
-  final Value<String?> areaSize;
+  final Value<String> name;
+  final Value<String> address;
+  final Value<String> propertyType;
   final Value<double> monthlyRent;
-  final Value<String> status;
-  final Value<String?> photoPaths;
+  final Value<bool> isOccupied;
   final Value<DateTime> createdAt;
   const PropertiesTableCompanion({
     this.id = const Value.absent(),
-    this.buildingName = const Value.absent(),
-    this.unitNumber = const Value.absent(),
-    this.floorLevel = const Value.absent(),
-    this.areaSize = const Value.absent(),
+    this.name = const Value.absent(),
+    this.address = const Value.absent(),
+    this.propertyType = const Value.absent(),
     this.monthlyRent = const Value.absent(),
-    this.status = const Value.absent(),
-    this.photoPaths = const Value.absent(),
+    this.isOccupied = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   PropertiesTableCompanion.insert({
     this.id = const Value.absent(),
-    required String buildingName,
-    required String unitNumber,
-    this.floorLevel = const Value.absent(),
-    this.areaSize = const Value.absent(),
+    required String name,
+    required String address,
+    this.propertyType = const Value.absent(),
     required double monthlyRent,
-    this.status = const Value.absent(),
-    this.photoPaths = const Value.absent(),
+    this.isOccupied = const Value.absent(),
     this.createdAt = const Value.absent(),
-  })  : buildingName = Value(buildingName),
-        unitNumber = Value(unitNumber),
+  })  : name = Value(name),
+        address = Value(address),
         monthlyRent = Value(monthlyRent);
-  static Insertable<PropertyUnit> custom({
+  static Insertable<Property> custom({
     Expression<int>? id,
-    Expression<String>? buildingName,
-    Expression<String>? unitNumber,
-    Expression<int>? floorLevel,
-    Expression<String>? areaSize,
+    Expression<String>? name,
+    Expression<String>? address,
+    Expression<String>? propertyType,
     Expression<double>? monthlyRent,
-    Expression<String>? status,
-    Expression<String>? photoPaths,
+    Expression<bool>? isOccupied,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (buildingName != null) 'building_name': buildingName,
-      if (unitNumber != null) 'unit_number': unitNumber,
-      if (floorLevel != null) 'floor_level': floorLevel,
-      if (areaSize != null) 'area_size': areaSize,
+      if (name != null) 'name': name,
+      if (address != null) 'address': address,
+      if (propertyType != null) 'property_type': propertyType,
       if (monthlyRent != null) 'monthly_rent': monthlyRent,
-      if (status != null) 'status': status,
-      if (photoPaths != null) 'photo_paths': photoPaths,
+      if (isOccupied != null) 'is_occupied': isOccupied,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
 
   PropertiesTableCompanion copyWith(
       {Value<int>? id,
-      Value<String>? buildingName,
-      Value<String>? unitNumber,
-      Value<int>? floorLevel,
-      Value<String?>? areaSize,
+      Value<String>? name,
+      Value<String>? address,
+      Value<String>? propertyType,
       Value<double>? monthlyRent,
-      Value<String>? status,
-      Value<String?>? photoPaths,
+      Value<bool>? isOccupied,
       Value<DateTime>? createdAt}) {
     return PropertiesTableCompanion(
       id: id ?? this.id,
-      buildingName: buildingName ?? this.buildingName,
-      unitNumber: unitNumber ?? this.unitNumber,
-      floorLevel: floorLevel ?? this.floorLevel,
-      areaSize: areaSize ?? this.areaSize,
+      name: name ?? this.name,
+      address: address ?? this.address,
+      propertyType: propertyType ?? this.propertyType,
       monthlyRent: monthlyRent ?? this.monthlyRent,
-      status: status ?? this.status,
-      photoPaths: photoPaths ?? this.photoPaths,
+      isOccupied: isOccupied ?? this.isOccupied,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -453,26 +352,20 @@ class PropertiesTableCompanion extends UpdateCompanion<PropertyUnit> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (buildingName.present) {
-      map['building_name'] = Variable<String>(buildingName.value);
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
     }
-    if (unitNumber.present) {
-      map['unit_number'] = Variable<String>(unitNumber.value);
+    if (address.present) {
+      map['address'] = Variable<String>(address.value);
     }
-    if (floorLevel.present) {
-      map['floor_level'] = Variable<int>(floorLevel.value);
-    }
-    if (areaSize.present) {
-      map['area_size'] = Variable<String>(areaSize.value);
+    if (propertyType.present) {
+      map['property_type'] = Variable<String>(propertyType.value);
     }
     if (monthlyRent.present) {
       map['monthly_rent'] = Variable<double>(monthlyRent.value);
     }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
-    }
-    if (photoPaths.present) {
-      map['photo_paths'] = Variable<String>(photoPaths.value);
+    if (isOccupied.present) {
+      map['is_occupied'] = Variable<bool>(isOccupied.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -484,13 +377,11 @@ class PropertiesTableCompanion extends UpdateCompanion<PropertyUnit> {
   String toString() {
     return (StringBuffer('PropertiesTableCompanion(')
           ..write('id: $id, ')
-          ..write('buildingName: $buildingName, ')
-          ..write('unitNumber: $unitNumber, ')
-          ..write('floorLevel: $floorLevel, ')
-          ..write('areaSize: $areaSize, ')
+          ..write('name: $name, ')
+          ..write('address: $address, ')
+          ..write('propertyType: $propertyType, ')
           ..write('monthlyRent: $monthlyRent, ')
-          ..write('status: $status, ')
-          ..write('photoPaths: $photoPaths, ')
+          ..write('isOccupied: $isOccupied, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -3921,30 +3812,26 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$PropertiesTableTableCreateCompanionBuilder = PropertiesTableCompanion
     Function({
   Value<int> id,
-  required String buildingName,
-  required String unitNumber,
-  Value<int> floorLevel,
-  Value<String?> areaSize,
+  required String name,
+  required String address,
+  Value<String> propertyType,
   required double monthlyRent,
-  Value<String> status,
-  Value<String?> photoPaths,
+  Value<bool> isOccupied,
   Value<DateTime> createdAt,
 });
 typedef $$PropertiesTableTableUpdateCompanionBuilder = PropertiesTableCompanion
     Function({
   Value<int> id,
-  Value<String> buildingName,
-  Value<String> unitNumber,
-  Value<int> floorLevel,
-  Value<String?> areaSize,
+  Value<String> name,
+  Value<String> address,
+  Value<String> propertyType,
   Value<double> monthlyRent,
-  Value<String> status,
-  Value<String?> photoPaths,
+  Value<bool> isOccupied,
   Value<DateTime> createdAt,
 });
 
 final class $$PropertiesTableTableReferences
-    extends BaseReferences<_$AppDatabase, $PropertiesTableTable, PropertyUnit> {
+    extends BaseReferences<_$AppDatabase, $PropertiesTableTable, Property> {
   $$PropertiesTableTableReferences(
       super.$_db, super.$_table, super.$_typedResult);
 
@@ -4068,26 +3955,20 @@ class $$PropertiesTableTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get buildingName => $composableBuilder(
-      column: $table.buildingName, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get unitNumber => $composableBuilder(
-      column: $table.unitNumber, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get address => $composableBuilder(
+      column: $table.address, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get floorLevel => $composableBuilder(
-      column: $table.floorLevel, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get areaSize => $composableBuilder(
-      column: $table.areaSize, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get propertyType => $composableBuilder(
+      column: $table.propertyType, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get monthlyRent => $composableBuilder(
       column: $table.monthlyRent, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get photoPaths => $composableBuilder(
-      column: $table.photoPaths, builder: (column) => ColumnFilters(column));
+  ColumnFilters<bool> get isOccupied => $composableBuilder(
+      column: $table.isOccupied, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -4252,27 +4133,21 @@ class $$PropertiesTableTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get buildingName => $composableBuilder(
-      column: $table.buildingName,
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get address => $composableBuilder(
+      column: $table.address, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get propertyType => $composableBuilder(
+      column: $table.propertyType,
       builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get unitNumber => $composableBuilder(
-      column: $table.unitNumber, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get floorLevel => $composableBuilder(
-      column: $table.floorLevel, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get areaSize => $composableBuilder(
-      column: $table.areaSize, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get monthlyRent => $composableBuilder(
       column: $table.monthlyRent, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get photoPaths => $composableBuilder(
-      column: $table.photoPaths, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<bool> get isOccupied => $composableBuilder(
+      column: $table.isOccupied, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
@@ -4290,26 +4165,20 @@ class $$PropertiesTableTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get buildingName => $composableBuilder(
-      column: $table.buildingName, builder: (column) => column);
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
 
-  GeneratedColumn<String> get unitNumber => $composableBuilder(
-      column: $table.unitNumber, builder: (column) => column);
+  GeneratedColumn<String> get address =>
+      $composableBuilder(column: $table.address, builder: (column) => column);
 
-  GeneratedColumn<int> get floorLevel => $composableBuilder(
-      column: $table.floorLevel, builder: (column) => column);
-
-  GeneratedColumn<String> get areaSize =>
-      $composableBuilder(column: $table.areaSize, builder: (column) => column);
+  GeneratedColumn<String> get propertyType => $composableBuilder(
+      column: $table.propertyType, builder: (column) => column);
 
   GeneratedColumn<double> get monthlyRent => $composableBuilder(
       column: $table.monthlyRent, builder: (column) => column);
 
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-
-  GeneratedColumn<String> get photoPaths => $composableBuilder(
-      column: $table.photoPaths, builder: (column) => column);
+  GeneratedColumn<bool> get isOccupied => $composableBuilder(
+      column: $table.isOccupied, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -4466,14 +4335,14 @@ class $$PropertiesTableTableAnnotationComposer
 class $$PropertiesTableTableTableManager extends RootTableManager<
     _$AppDatabase,
     $PropertiesTableTable,
-    PropertyUnit,
+    Property,
     $$PropertiesTableTableFilterComposer,
     $$PropertiesTableTableOrderingComposer,
     $$PropertiesTableTableAnnotationComposer,
     $$PropertiesTableTableCreateCompanionBuilder,
     $$PropertiesTableTableUpdateCompanionBuilder,
-    (PropertyUnit, $$PropertiesTableTableReferences),
-    PropertyUnit,
+    (Property, $$PropertiesTableTableReferences),
+    Property,
     PrefetchHooks Function(
         {bool tenantsTableRefs,
         bool rentLedgerTableRefs,
@@ -4495,46 +4364,38 @@ class $$PropertiesTableTableTableManager extends RootTableManager<
               $$PropertiesTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            Value<String> buildingName = const Value.absent(),
-            Value<String> unitNumber = const Value.absent(),
-            Value<int> floorLevel = const Value.absent(),
-            Value<String?> areaSize = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> address = const Value.absent(),
+            Value<String> propertyType = const Value.absent(),
             Value<double> monthlyRent = const Value.absent(),
-            Value<String> status = const Value.absent(),
-            Value<String?> photoPaths = const Value.absent(),
+            Value<bool> isOccupied = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               PropertiesTableCompanion(
             id: id,
-            buildingName: buildingName,
-            unitNumber: unitNumber,
-            floorLevel: floorLevel,
-            areaSize: areaSize,
+            name: name,
+            address: address,
+            propertyType: propertyType,
             monthlyRent: monthlyRent,
-            status: status,
-            photoPaths: photoPaths,
+            isOccupied: isOccupied,
             createdAt: createdAt,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            required String buildingName,
-            required String unitNumber,
-            Value<int> floorLevel = const Value.absent(),
-            Value<String?> areaSize = const Value.absent(),
+            required String name,
+            required String address,
+            Value<String> propertyType = const Value.absent(),
             required double monthlyRent,
-            Value<String> status = const Value.absent(),
-            Value<String?> photoPaths = const Value.absent(),
+            Value<bool> isOccupied = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               PropertiesTableCompanion.insert(
             id: id,
-            buildingName: buildingName,
-            unitNumber: unitNumber,
-            floorLevel: floorLevel,
-            areaSize: areaSize,
+            name: name,
+            address: address,
+            propertyType: propertyType,
             monthlyRent: monthlyRent,
-            status: status,
-            photoPaths: photoPaths,
+            isOccupied: isOccupied,
             createdAt: createdAt,
           ),
           withReferenceMapper: (p0) => p0
@@ -4566,8 +4427,8 @@ class $$PropertiesTableTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (tenantsTableRefs)
-                    await $_getPrefetchedData<PropertyUnit,
-                            $PropertiesTableTable, Tenant>(
+                    await $_getPrefetchedData<Property, $PropertiesTableTable,
+                            Tenant>(
                         currentTable: table,
                         referencedTable: $$PropertiesTableTableReferences
                             ._tenantsTableRefsTable(db),
@@ -4579,8 +4440,7 @@ class $$PropertiesTableTableTableManager extends RootTableManager<
                                 .where((e) => e.propertyId == item.id),
                         typedResults: items),
                   if (rentLedgerTableRefs)
-                    await $_getPrefetchedData<PropertyUnit,
-                            $PropertiesTableTable, RentLedgerRecord>(
+                    await $_getPrefetchedData<Property, $PropertiesTableTable, RentLedgerRecord>(
                         currentTable: table,
                         referencedTable: $$PropertiesTableTableReferences
                             ._rentLedgerTableRefsTable(db),
@@ -4592,8 +4452,8 @@ class $$PropertiesTableTableTableManager extends RootTableManager<
                                 .where((e) => e.propertyId == item.id),
                         typedResults: items),
                   if (assetsTableRefs)
-                    await $_getPrefetchedData<PropertyUnit,
-                            $PropertiesTableTable, PropertyAsset>(
+                    await $_getPrefetchedData<Property, $PropertiesTableTable,
+                            PropertyAsset>(
                         currentTable: table,
                         referencedTable: $$PropertiesTableTableReferences
                             ._assetsTableRefsTable(db),
@@ -4605,8 +4465,8 @@ class $$PropertiesTableTableTableManager extends RootTableManager<
                                 .where((e) => e.propertyId == item.id),
                         typedResults: items),
                   if (maintenanceTableRefs)
-                    await $_getPrefetchedData<PropertyUnit,
-                            $PropertiesTableTable, MaintenanceRecord>(
+                    await $_getPrefetchedData<Property, $PropertiesTableTable,
+                            MaintenanceRecord>(
                         currentTable: table,
                         referencedTable: $$PropertiesTableTableReferences
                             ._maintenanceTableRefsTable(db),
@@ -4618,8 +4478,8 @@ class $$PropertiesTableTableTableManager extends RootTableManager<
                                 .where((e) => e.propertyId == item.id),
                         typedResults: items),
                   if (expensesTableRefs)
-                    await $_getPrefetchedData<PropertyUnit,
-                            $PropertiesTableTable, PropertyExpense>(
+                    await $_getPrefetchedData<Property, $PropertiesTableTable,
+                            PropertyExpense>(
                         currentTable: table,
                         referencedTable: $$PropertiesTableTableReferences
                             ._expensesTableRefsTable(db),
@@ -4631,8 +4491,8 @@ class $$PropertiesTableTableTableManager extends RootTableManager<
                                 .where((e) => e.propertyId == item.id),
                         typedResults: items),
                   if (tenantHistoryTableRefs)
-                    await $_getPrefetchedData<PropertyUnit,
-                            $PropertiesTableTable, TenantHistory>(
+                    await $_getPrefetchedData<Property, $PropertiesTableTable,
+                            TenantHistory>(
                         currentTable: table,
                         referencedTable: $$PropertiesTableTableReferences
                             ._tenantHistoryTableRefsTable(db),
@@ -4644,8 +4504,7 @@ class $$PropertiesTableTableTableManager extends RootTableManager<
                                 .where((e) => e.propertyId == item.id),
                         typedResults: items),
                   if (documentsTableRefs)
-                    await $_getPrefetchedData<PropertyUnit,
-                            $PropertiesTableTable, PropertyDocument>(
+                    await $_getPrefetchedData<Property, $PropertiesTableTable, PropertyDocument>(
                         currentTable: table,
                         referencedTable: $$PropertiesTableTableReferences
                             ._documentsTableRefsTable(db),
@@ -4666,14 +4525,14 @@ class $$PropertiesTableTableTableManager extends RootTableManager<
 typedef $$PropertiesTableTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
     $PropertiesTableTable,
-    PropertyUnit,
+    Property,
     $$PropertiesTableTableFilterComposer,
     $$PropertiesTableTableOrderingComposer,
     $$PropertiesTableTableAnnotationComposer,
     $$PropertiesTableTableCreateCompanionBuilder,
     $$PropertiesTableTableUpdateCompanionBuilder,
-    (PropertyUnit, $$PropertiesTableTableReferences),
-    PropertyUnit,
+    (Property, $$PropertiesTableTableReferences),
+    Property,
     PrefetchHooks Function(
         {bool tenantsTableRefs,
         bool rentLedgerTableRefs,
