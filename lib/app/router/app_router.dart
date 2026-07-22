@@ -1,53 +1,73 @@
+// lib/app/router/app_router.dart
+
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:housely/app/providers.dart';
-import 'package:housely/core/database/tables.dart';
-import 'package:housely/features/auth/presentation/login_screen.dart';
-import 'package:housely/features/dashboard/presentation/owner_dashboard_shell.dart';
-import 'package:housely/features/dashboard/presentation/resident_dashboard_shell.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
+/// Navigation keys and GoRouter configuration for Housely.
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// Global Riverpod provider exposing the GoRouter routing instance.
+final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/login',
-    redirect: (BuildContext context, GoRouterState state) {
-      final user = authState.value;
-      final isLoggingIn = state.matchedLocation == '/login';
-
-      if (user == null) {
-        return isLoggingIn ? null : '/login';
-      }
-
-      if (isLoggingIn) {
-        return user.role == UserRole.owner ? '/owner' : '/resident';
-      }
-
-      if (state.matchedLocation.startsWith('/owner') &&
-          user.role != UserRole.owner) {
-        return '/resident';
-      }
-
-      if (state.matchedLocation.startsWith('/resident') &&
-          user.role != UserRole.resident) {
-        return '/owner';
-      }
-
-      return null;
-    },
+    navigatorKey: _rootNavigatorKey,
+    initialLocation: '/',
     routes: [
       GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
+        path: '/',
+        name: 'dashboard',
+        builder: (context, state) => const Scaffold(
+          body: Center(child: Text('Dashboard Placeholder')),
+        ),
       ),
       GoRoute(
-        path: '/owner',
-        builder: (context, state) => const OwnerDashboardShell(),
+        path: '/properties',
+        name: 'properties',
+        builder: (context, state) => const Scaffold(
+          body: Center(child: Text('Properties Placeholder')),
+        ),
       ),
       GoRoute(
-        path: '/resident',
-        builder: (context, state) => const ResidentDashboardShell(),
+        path: '/tenants',
+        name: 'tenants',
+        builder: (context, state) => const Scaffold(
+          body: Center(child: Text('Tenants Placeholder')),
+        ),
+      ),
+      GoRoute(
+        path: '/ledger',
+        name: 'ledger',
+        builder: (context, state) => const Scaffold(
+          body: Center(child: Text('Rent Ledger Placeholder')),
+        ),
+      ),
+      GoRoute(
+        path: '/maintenance',
+        name: 'maintenance',
+        builder: (context, state) => const Scaffold(
+          body: Center(child: Text('Maintenance Placeholder')),
+        ),
+      ),
+      GoRoute(
+        path: '/expenses',
+        name: 'expenses',
+        builder: (context, state) => const Scaffold(
+          body: Center(child: Text('Expenses Placeholder')),
+        ),
+      ),
+      GoRoute(
+        path: '/assets',
+        name: 'assets',
+        builder: (context, state) => const Scaffold(
+          body: Center(child: Text('Assets Placeholder')),
+        ),
+      ),
+      GoRoute(
+        path: '/vault',
+        name: 'vault',
+        builder: (context, state) => const Scaffold(
+          body: Center(child: Text('Document Vault Placeholder')),
+        ),
       ),
     ],
   );
