@@ -1,12 +1,15 @@
 // lib/features/expenses/presentation/widgets/add_expense_sheet.dart
 
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart' as drift;
-import 'package:housely/core/database/database_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:housely/core/database/app_database.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:housely/core/database/database_provider.dart';
 
-/// Modal sheet for property owners to record operational building expenses.
+/// Modal bottom sheet widget enabling users to log new operational expenses.
+///
+/// Features input fields for expense category, amount, and property ID,
+/// persisting entries directly into the Drift persistence engine.
 class AddExpenseSheet extends ConsumerStatefulWidget {
   /// Constructs an [AddExpenseSheet] instance.
   const AddExpenseSheet({super.key});
@@ -16,82 +19,83 @@ class AddExpenseSheet extends ConsumerStatefulWidget {
 }
 
 class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
+  /// Global form key used for field validation checks.
   final _formKey = GlobalKey<FormState>();
-  final _categoryController = TextEditingController();
+
+  /// Form field controllers managing input text states.
   final _amountController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _propertyIdController = TextEditingController();
+  final _categoryController = TextEditingController();
+  final _propertyIdController = TextEditingController(text: '1');
 
   @override
   void dispose() {
-    _categoryController.dispose();
     _amountController.dispose();
-    _descriptionController.dispose();
+    _categoryController.dispose();
     _propertyIdController.dispose();
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final dao = ref.read(expensesDaoProvider);
-      final propId = int.tryParse(_propertyIdController.text.trim());
+  /// Validates input parameters and inserts a new row into [ExpensesTable].
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      final newExpense = ExpensesTableCompanion.insert(
+    final db = ref.read(databaseProvider);
+    final amount = double.tryParse(_amountController.text.trim()) ?? 0.0;
+    final propertyId = int.tryParse(_propertyIdController.text.trim()) ?? 1;
+
+    await db.into(db.expensesTable).insert(
+      ExpensesTableCompanion.insert(
+        propertyId: drift.Value(propertyId),
+        amount: amount,
         category: _categoryController.text.trim(),
-        amount: double.parse(_amountController.text.trim()),
         expenseDate: DateTime.now(),
-        propertyId: drift.Value(propId),
-        description: drift.Value(
-          _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim(),
-        ),
-      );
+      ),
+    );
 
-      dao.insertExpense(newExpense);
-      Navigator.pop(context);
-    }
+    if (mounted) Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        left: 16,
+        right: 16,
+        top: 24,
+      ),
       child: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Record Operational Expense', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16.0),
+            Text('Log New Expense', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _categoryController,
-              decoration: const InputDecoration(labelText: 'Category (e.g. Taxes, Utilities)'),
-              validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+              decoration: const InputDecoration(labelText: 'Category (e.g. Plumbing, Utilities)'),
+              validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
             ),
-            const SizedBox(height: 12.0),
+            const SizedBox(height: 12),
             TextFormField(
               controller: _amountController,
-              decoration: const InputDecoration(labelText: 'Amount (\$)'),
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: (val) {
-                if (val == null || val.isEmpty) return 'Required';
-                if (double.tryParse(val) == null) return 'Must be a valid number';
-                return null;
-              },
+              decoration: const InputDecoration(labelText: 'Amount (\$)'),
+              validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
             ),
-            const SizedBox(height: 12.0),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description / Vendor Info'),
-            ),
-            const SizedBox(height: 12.0),
+            const SizedBox(height: 12),
             TextFormField(
               controller: _propertyIdController,
-              decoration: const InputDecoration(labelText: 'Property Unit ID (Optional)'),
               keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Property ID'),
+              validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
             ),
-            const SizedBox(height: 24.0),
-            ElevatedButton(onPressed: _submitForm, child: const Text('Save Expense')),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _submit,
+              child: const Text('Save Expense'),
+            ),
           ],
         ),
       ),

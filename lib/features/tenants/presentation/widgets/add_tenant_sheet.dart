@@ -2,11 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart' as drift;
-import 'package:housely/core/database/database_provider.dart';
 import 'package:housely/core/database/app_database.dart';
+import 'package:housely/core/database/database_provider.dart';
 
-/// Modal sheet widget for creating and persisting new tenant records in Drift.
+/// Modal bottom sheet for creating a new tenant entry.
 class AddTenantSheet extends ConsumerStatefulWidget {
   /// Constructs an [AddTenantSheet] instance.
   const AddTenantSheet({super.key});
@@ -19,43 +18,44 @@ class _AddTenantSheetState extends ConsumerState<AddTenantSheet> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _propertyIdController = TextEditingController();
-  final _depositController = TextEditingController();
+  final _propertyIdController = TextEditingController(text: '1');
 
   @override
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
     _propertyIdController.dispose();
-    _depositController.dispose();
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final dao = ref.read(tenantsDaoProvider);
-      final now = DateTime.now();
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      final newTenant = TenantsTableCompanion.insert(
+    final db = ref.read(databaseProvider);
+    final now = DateTime.now();
+
+    await db.into(db.tenantsTable).insert(
+      TenantsTableCompanion.insert(
+        propertyId: int.tryParse(_propertyIdController.text) ?? 1,
         fullName: _nameController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
-        propertyId: int.parse(_propertyIdController.text.trim()),
         leaseStartDate: now,
         leaseEndDate: now.add(const Duration(days: 365)),
-        securityDeposit: drift.Value(
-          double.tryParse(_depositController.text.trim()) ?? 0.0,
-        ),
-      );
+      ),
+    );
 
-      dao.insertTenant(newTenant);
-      Navigator.pop(context);
-    }
+    if (mounted) Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        left: 16,
+        right: 16,
+        top: 24,
+      ),
       child: Form(
         key: _formKey,
         child: Column(
@@ -63,34 +63,30 @@ class _AddTenantSheetState extends ConsumerState<AddTenantSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('Add New Tenant', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Full Name'),
-              validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+              validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
             ),
-            const SizedBox(height: 12.0),
+            const SizedBox(height: 12),
             TextFormField(
               controller: _phoneController,
               decoration: const InputDecoration(labelText: 'Phone Number'),
-              keyboardType: TextInputType.phone,
-              validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+              validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
             ),
-            const SizedBox(height: 12.0),
+            const SizedBox(height: 12),
             TextFormField(
               controller: _propertyIdController,
-              decoration: const InputDecoration(labelText: 'Property Unit ID'),
               keyboardType: TextInputType.number,
-              validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+              decoration: const InputDecoration(labelText: 'Property ID'),
+              validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
             ),
-            const SizedBox(height: 12.0),
-            TextFormField(
-              controller: _depositController,
-              decoration: const InputDecoration(labelText: 'Security Deposit (\$)'),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _submit,
+              child: const Text('Save Tenant'),
             ),
-            const SizedBox(height: 24.0),
-            ElevatedButton(onPressed: _submitForm, child: const Text('Save Tenant')),
           ],
         ),
       ),

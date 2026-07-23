@@ -24,21 +24,18 @@ class DashboardMetrics {
       totalProperties == 0 ? 0.0 : (occupiedProperties / totalProperties) * 100;
 }
 
-/// Combined Riverpod provider streaming aggregate dashboard metrics.
+/// Combined Riverpod provider streaming aggregate dashboard metrics directly from Drift tables.
 final dashboardMetricsProvider = StreamProvider<DashboardMetrics>((ref) async* {
-  final propertiesDao = ref.watch(propertiesDaoProvider);
-  final rentLedgerDao = ref.watch(rentLedgerDaoProvider);
-  final maintenanceDao = ref.watch(maintenanceDaoProvider);
-  final expensesDao = ref.watch(expensesDaoProvider);
+  final db = ref.watch(databaseProvider);
 
-  await for (final properties in propertiesDao.watchAllProperties()) {
-    final ledgerEntries = await rentLedgerDao.watchAllLedgerEntries().first;
-    final maintenanceLogs = await maintenanceDao.watchAllRequests().first;
-    final expenseLogs = await expensesDao.watchAllExpenses().first;
+  await for (final properties in db.select(db.propertiesTable).watch()) {
+    final ledgerEntries = await db.select(db.rentLedgerTable).get();
+    final maintenanceLogs = await db.select(db.maintenanceTable).get();
+    final expenseLogs = await db.select(db.expensesTable).get();
 
     final totalRent = ledgerEntries.fold<double>(
       0.0,
-          (sum, item) => sum + item.amountPaid,
+          (sum, item) => sum + (item.amountPaid),
     );
 
     final totalExpenses = expenseLogs.fold<double>(
@@ -48,7 +45,7 @@ final dashboardMetricsProvider = StreamProvider<DashboardMetrics>((ref) async* {
 
     final occupied = properties.where((p) => p.isOccupied).length;
     final pendingMaintenance = maintenanceLogs
-        .where((m) => m.status.toLowerCase() != 'completed')
+        .where((m) => (m.status).toLowerCase() != 'completed')
         .length;
 
     yield DashboardMetrics(

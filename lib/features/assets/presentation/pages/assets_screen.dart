@@ -1,4 +1,4 @@
-// lib/features/assets/presentation/screens/assets_screen.dart
+// lib/features/assets/presentation/pages/assets_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

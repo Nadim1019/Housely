@@ -14,7 +14,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
   const ScaffoldWithNavBar({super.key, required this.child});
 
   int _calculateSelectedIndex(BuildContext context) {
-    final location = GoRouterState.of(context).uri.toString();
+    final location = GoRouterState.of(context).matchedLocation;
     if (location.startsWith(AppRoutes.properties)) return 1;
     if (location.startsWith(AppRoutes.rentLedger)) return 2;
     if (location.startsWith(AppRoutes.maintenance)) return 3;
@@ -40,11 +40,23 @@ class ScaffoldWithNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentIndex = _calculateSelectedIndex(context);
+
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       drawer: const AppDrawer(),
-      body: child,
+      body: SafeArea(
+        top: false,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: KeyedSubtree(
+            key: ValueKey<int>(currentIndex),
+            child: child,
+          ),
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _calculateSelectedIndex(context),
+        currentIndex: currentIndex,
         type: BottomNavigationBarType.fixed,
         onTap: (index) => _onItemTapped(index, context),
         items: const [

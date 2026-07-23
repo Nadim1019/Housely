@@ -1,12 +1,15 @@
 // lib/features/assets/presentation/widgets/add_asset_sheet.dart
 
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart' as drift;
-import 'package:housely/core/database/database_provider.dart';
 import 'package:housely/core/database/app_database.dart';
+import 'package:housely/core/database/database_provider.dart';
 
-/// Modal sheet component for logging new appliance and furniture assets in Drift.
+/// Modal bottom sheet widget enabling users to log new property assets.
+///
+/// Captures asset name, estimated value, condition status, and linked property ID,
+/// saving records into the Drift database.
 class AddAssetSheet extends ConsumerStatefulWidget {
   /// Constructs an [AddAssetSheet] instance.
   const AddAssetSheet({super.key});
@@ -16,91 +19,89 @@ class AddAssetSheet extends ConsumerStatefulWidget {
 }
 
 class _AddAssetSheetState extends ConsumerState<AddAssetSheet> {
+  /// Form key used to handle validation across user input fields.
   final _formKey = GlobalKey<FormState>();
-  final _propertyIdController = TextEditingController();
+
+  /// Text editing controllers managing asset field state values.
   final _nameController = TextEditingController();
-  final _priceController = TextEditingController();
-  String _category = 'Appliance';
-  String _condition = 'Good';
+  final _valueController = TextEditingController();
+  final _conditionController = TextEditingController(text: 'Good');
+  final _propertyIdController = TextEditingController(text: '1');
 
   @override
   void dispose() {
-    _propertyIdController.dispose();
     _nameController.dispose();
-    _priceController.dispose();
+    _valueController.dispose();
+    _conditionController.dispose();
+    _propertyIdController.dispose();
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      final dao = ref.read(assetsDaoProvider);
-      final newAsset = AssetsTableCompanion.insert(
-        propertyId: int.parse(_propertyIdController.text.trim()),
-        assetName: _nameController.text.trim(),
-        category: drift.Value(_category),
-        condition: drift.Value(_condition),
-        purchasePrice: drift.Value(double.tryParse(_priceController.text.trim())),
-      );
+  /// Validates input values and inserts a new asset row into [AssetsTable].
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      dao.insertAsset(newAsset);
-      Navigator.pop(context);
-    }
+    final db = ref.read(databaseProvider);
+    final value = double.tryParse(_valueController.text.trim()) ?? 0.0;
+    final propertyId = int.tryParse(_propertyIdController.text.trim()) ?? 1;
+
+    await db.into(db.assetsTable).insert(
+      AssetsTableCompanion.insert(
+        propertyId: propertyId,
+        assetName: _nameController.text.trim(),
+        purchasePrice: drift.Value(value),
+        condition: drift.Value(_conditionController.text.trim()),
+      ),
+    );
+
+    if (mounted) Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        left: 16,
+        right: 16,
+        top: 24,
+      ),
       child: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Add Inventory Asset', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16.0),
-            TextFormField(
-              controller: _propertyIdController,
-              decoration: const InputDecoration(labelText: 'Property Unit ID'),
-              keyboardType: TextInputType.number,
-              validator: (val) => val == null || val.isEmpty ? 'Required' : null,
-            ),
-            const SizedBox(height: 12.0),
+            Text('Register New Asset', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 16),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Asset Name (e.g. Inverter AC)'),
-              validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+              decoration: const InputDecoration(labelText: 'Asset Name (e.g. Washing Machine)'),
+              validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
             ),
-            const SizedBox(height: 12.0),
-            DropdownButtonFormField<String>(
-              initialValue: _category,
-              decoration: const InputDecoration(labelText: 'Category'),
-              items: const [
-                DropdownMenuItem(value: 'Appliance', child: Text('Appliance')),
-                DropdownMenuItem(value: 'Furniture', child: Text('Furniture')),
-                DropdownMenuItem(value: 'Electronics', child: Text('Electronics')),
-              ],
-              onChanged: (val) => val != null ? setState(() => _category = val) : null,
-            ),
-            const SizedBox(height: 12.0),
-            DropdownButtonFormField<String>(
-              initialValue: _condition,
-              decoration: const InputDecoration(labelText: 'Condition'),
-              items: const [
-                DropdownMenuItem(value: 'New', child: Text('New')),
-                DropdownMenuItem(value: 'Good', child: Text('Good')),
-                DropdownMenuItem(value: 'Needs Repair', child: Text('Needs Repair')),
-              ],
-              onChanged: (val) => val != null ? setState(() => _condition = val) : null,
-            ),
-            const SizedBox(height: 12.0),
+            const SizedBox(height: 12),
             TextFormField(
-              controller: _priceController,
-              decoration: const InputDecoration(labelText: 'Purchase Price (\$)'),
+              controller: _valueController,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(labelText: 'Estimated Value (\$)'),
             ),
-            const SizedBox(height: 24.0),
-            ElevatedButton(onPressed: _submitForm, child: const Text('Save Asset')),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _conditionController,
+              decoration: const InputDecoration(labelText: 'Condition (e.g. Good, Needs Repair)'),
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _propertyIdController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Property ID'),
+              validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _submit,
+              child: const Text('Save Asset'),
+            ),
           ],
         ),
       ),

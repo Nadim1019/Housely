@@ -9,6 +9,7 @@ class AppDrawer extends StatelessWidget {
   /// Constructs an [AppDrawer] instance.
   const AppDrawer({super.key});
 
+  /// Helper builder for drawer list tiles with route navigation.
   Widget _buildTile(
       BuildContext context, {
         required String title,
@@ -19,8 +20,8 @@ class AppDrawer extends StatelessWidget {
       leading: Icon(icon),
       title: Text(title),
       onTap: () {
-        Navigator.pop(context); // Close drawer
-        context.go(route);
+        Navigator.pop(context); // Close the drawer overlay
+        context.push(route); // Push route to retain navigation history & back button
       },
     );
   }

@@ -5,20 +5,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:housely/core/router/app_routes.dart';
 import 'package:housely/core/router/scaffold_with_nav_bar.dart';
-import 'package:housely/features/assets/presentation/screens/assets_screen.dart';
-import 'package:housely/features/dashboard/presentation/screens/dashboard_screen.dart';
-import 'package:housely/features/documents/presentation/screens/documents_screen.dart';
-import 'package:housely/features/expenses/presentation/screens/expenses_screen.dart';
-import 'package:housely/features/maintenance/presentation/screens/maintenance_screen.dart';
-import 'package:housely/features/properties/presentation/screens/properties_screen.dart';
-import 'package:housely/features/rent_ledger/presentation/screens/rent_ledger_screen.dart';
-import 'package:housely/features/tenant_history/presentation/screens/tenant_history_screen.dart';
-import 'package:housely/features/tenants/presentation/screens/tenants_screen.dart';
+import 'package:housely/features/assets/presentation/pages/assets_screen.dart';
+import 'package:housely/features/dashboard/presentation/pages/dashboard_screen.dart';
+import 'package:housely/features/documents/presentation/pages/documents_screen.dart';
+import 'package:housely/features/expenses/presentation/pages/expenses_screen.dart';
+import 'package:housely/features/maintenance/presentation/pages/maintenance_screen.dart';
+import 'package:housely/features/properties/presentation/pages/properties_screen.dart';
+import 'package:housely/features/rent_ledger/presentation/pages/rent_ledger_screen.dart';
+import 'package:housely/features/tenant_history/presentation/pages/tenant_history_screen.dart';
+import 'package:housely/features/tenants/presentation/pages/tenants_screen.dart';
 
+/// Navigator keys for nested ShellRoute orchestration.
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
-/// Riverpod provider delivering central GoRouter navigation configuration.
+/// Central Riverpod provider delivering GoRouter route mapping.
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
@@ -28,52 +29,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) => ScaffoldWithNavBar(child: child),
         routes: [
-          GoRoute(
-            path: AppRoutes.dashboard,
-            name: 'dashboard',
-            builder: (context, state) => const DashboardScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.properties,
-            name: 'properties',
-            builder: (context, state) => const PropertiesScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.rentLedger,
-            name: 'rent_ledger',
-            builder: (context, state) => const RentLedgerScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.maintenance,
-            name: 'maintenance',
-            builder: (context, state) => const MaintenanceScreen(),
-          ),
+          GoRoute(path: AppRoutes.dashboard, builder: (c, s) => const DashboardScreen()),
+          GoRoute(path: AppRoutes.properties, builder: (c, s) => const PropertiesScreen()),
+          GoRoute(path: AppRoutes.rentLedger, builder: (c, s) => const RentLedgerScreen()),
+          GoRoute(path: AppRoutes.maintenance, builder: (c, s) => const MaintenanceScreen()),
+          GoRoute(path: AppRoutes.tenants, builder: (c, s) => const TenantsScreen()),
+          GoRoute(path: AppRoutes.expenses, builder: (c, s) => const ExpensesScreen()),
+          GoRoute(path: AppRoutes.assets, builder: (c, s) => const AssetsScreen()),
+          GoRoute(path: AppRoutes.documents, builder: (c, s) => const DocumentsScreen()),
+          GoRoute(path: AppRoutes.history, builder: (c, s) => const TenantHistoryScreen()),
         ],
-      ),
-      GoRoute(
-        path: AppRoutes.tenants,
-        name: 'tenants',
-        builder: (context, state) => const TenantsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.expenses,
-        name: 'expenses',
-        builder: (context, state) => const ExpensesScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.assets,
-        name: 'assets',
-        builder: (context, state) => const AssetsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.documents,
-        name: 'documents',
-        builder: (context, state) => const DocumentsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.history,
-        name: 'history',
-        builder: (context, state) => const TenantHistoryScreen(),
       ),
     ],
   );

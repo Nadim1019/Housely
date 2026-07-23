@@ -1,4 +1,4 @@
-// lib/features/tenant_history/presentation/screens/tenant_history_screen.dart
+// lib/features/tenant_history/presentation/pages/tenant_history_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

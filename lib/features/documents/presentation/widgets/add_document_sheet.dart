@@ -1,13 +1,16 @@
 // lib/features/documents/presentation/widgets/add_document_sheet.dart
 
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart' as drift;
-import 'package:housely/core/database/database_provider.dart';
 import 'package:housely/core/database/app_database.dart';
+import 'package:housely/core/database/database_provider.dart';
 import 'package:housely/features/documents/presentation/widgets/document_form_fields.dart';
 
-/// Modal sheet widget for validating and inserting document entries into Drift.
+/// Modal bottom sheet widget enabling users to log new property documents.
+///
+/// Features input fields for document title, file path, property ID, and category,
+/// persisting entries via [documentsDaoProvider].
 class AddDocumentSheet extends ConsumerStatefulWidget {
   /// Constructs an [AddDocumentSheet] instance.
   const AddDocumentSheet({super.key});
@@ -17,10 +20,15 @@ class AddDocumentSheet extends ConsumerStatefulWidget {
 }
 
 class _AddDocumentSheetState extends ConsumerState<AddDocumentSheet> {
+  /// Global key used to validate form input states prior to persistence.
   final _formKey = GlobalKey<FormState>();
+
+  /// Text editing controllers managing input field values.
   final _titleController = TextEditingController();
   final _filePathController = TextEditingController();
   final _propertyIdController = TextEditingController();
+
+  /// Holds the selected document category selection state.
   String _category = 'Lease';
 
   @override
@@ -31,6 +39,7 @@ class _AddDocumentSheetState extends ConsumerState<AddDocumentSheet> {
     super.dispose();
   }
 
+  /// Validates input values and delegates document insertion to the DAO provider.
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       final dao = ref.read(documentsDaoProvider);
